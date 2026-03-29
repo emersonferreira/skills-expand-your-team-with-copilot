@@ -187,7 +187,43 @@ section h3 {
   margin-top: auto;
   padding-top: 10px;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Share buttons */
+.share-buttons {
+  display: flex;
+  gap: 6px;
   justify-content: center;
+  width: 100%;
+}
+
+.share-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 4px 14px;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.share-btn:hover {
+  background-color: var(--background);
+  border-color: var(--primary-light);
+  color: var(--primary);
+}
+
+/* Highlighted card (for shared URL deep links) */
+.activity-card.highlighted {
+  outline: 2px solid var(--secondary);
+  box-shadow: 0 0 0 4px rgba(255, 111, 0, 0.15);
 }
 
 /* Activity Tag */

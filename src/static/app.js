@@ -470,6 +470,9 @@ document.addEventListener("DOMContentLoaded", () => {
     Object.entries(filteredActivities).forEach(([name, details]) => {
       renderActivityCard(name, details);
     });
+
+    // Scroll to and highlight any activity linked via shared URL
+    highlightSharedActivity();
   }
 
   // Function to render a single activity card
@@ -568,6 +571,9 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         `
         }
+        <div class="share-buttons">
+          <button class="share-btn" aria-label="Share ${name}">🔗 Share</button>
+        </div>
       </div>
     `;
 
@@ -586,6 +592,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Add click handler for share button
+    const shareButton = activityCard.querySelector(".share-btn");
+    shareButton.addEventListener("click", () => {
+      shareActivity(name, formattedSchedule);
+    });
 
     activitiesList.appendChild(activityCard);
   }
@@ -797,6 +809,45 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     );
+  }
+
+  // Share activity via Web Share API or clipboard fallback
+  function shareActivity(name, schedule) {
+    const shareUrl = `${window.location.origin}${window.location.pathname}?activity=${encodeURIComponent(name)}`;
+    const shareText = `Check out "${name}" at Mergington High School! Schedule: ${schedule}`;
+
+    if (navigator.share) {
+      navigator.share({
+        title: name,
+        text: shareText,
+        url: shareUrl,
+      }).catch(() => {}); // Ignore cancelled shares
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        showMessage("Link copied to clipboard!", "success");
+      }).catch(() => {
+        showMessage(`Share this link: ${shareUrl}`, "info");
+      });
+    } else {
+      showMessage(`Share this link: ${shareUrl}`, "info");
+    }
+  }
+
+  // Scroll to and highlight an activity shared via URL query param
+  function highlightSharedActivity() {
+    const params = new URLSearchParams(window.location.search);
+    // URLSearchParams.get() automatically decodes the parameter value
+    const sharedActivity = params.get("activity");
+    if (!sharedActivity) return;
+
+    const cards = activitiesList.querySelectorAll(".activity-card");
+    cards.forEach((card) => {
+      const cardTitle = card.querySelector("h4");
+      if (cardTitle && cardTitle.textContent.trim() === sharedActivity) {
+        card.classList.add("highlighted");
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
   }
 
   // Show message function
